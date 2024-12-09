@@ -13,11 +13,75 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum BoardType {
+  ARDUINO
+  RASPBERRYPI
+  PARTICLE
+}
+
+enum SensorType {
+  PH
+  ORP
+  DISSOLVED_OXYGEN
+  TEMPERATURE
+  CONDUCTIVITY
+  HUMIDITY
+}
+
 model Organization {
-  id      String @id @default(auto()) @map("_id") @db.ObjectId
-  name    String @unique
-  address String
-  city    String
-  state   String
-  country String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String   @unique
+  address   String
+  city      String
+  state     String
+  country   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sites     Site[]
+}
+
+model Site {
+  id              String           @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  address         String
+  city            String
+  state           String
+  country         String
+  organizationId  String           @db.ObjectId
+  organization    Organization     @relation(fields: [organizationId], references: [id])
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  measuringPoints MeasuringPoint[]
+}
+
+model MeasuringPoint {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  latlng    String
+  siteId    String   @db.ObjectId
+  site      Site     @relation(fields: [siteId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  boards    Board[]
+}
+
+model Board {
+  id               String         @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  boardType        BoardType      @default(ARDUINO)
+  measuringPointId String         @db.ObjectId
+  measuringPoint   MeasuringPoint @relation(fields: [measuringPointId], references: [id])
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  sensors          Sensor[]
+}
+
+model Sensor {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  sensorType SensorType @default(TEMPERATURE)
+  boardId    String     @db.ObjectId
+  board      Board      @relation(fields: [boardId], references: [id])
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 }
