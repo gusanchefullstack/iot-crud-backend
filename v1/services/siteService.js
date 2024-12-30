@@ -4,7 +4,15 @@ const prisma = new PrismaClient();
 
 const getAllSites = async () => {
   try {
-    const sites = await prisma.site.findMany();
+    const sites = await prisma.site.findMany({
+      include:{
+        _count:{
+          select:{
+            measuringPoints:true
+          }
+        }
+      }
+    });
     return sites;
   } catch (error) {
     throw error;

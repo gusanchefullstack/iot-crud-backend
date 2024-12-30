@@ -4,7 +4,17 @@ const prisma = new PrismaClient();
 
 const getAllBoards = async () => {
   try {
-    const boards = await prisma.board.findMany();
+    const boards = await prisma.board.findMany(
+      {
+        include:{
+          _count:{
+            select:{
+              sensors:true
+            }
+          }
+        }
+      }
+    );
     return boards;
   } catch (error) {
     throw error;

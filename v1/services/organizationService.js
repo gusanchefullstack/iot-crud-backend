@@ -4,7 +4,15 @@ const prisma = new PrismaClient();
 
 const getAllOrgs = async () => {
   try {
-    const orgs = await prisma.organization.findMany();
+    const orgs = await prisma.organization.findMany({
+      include:{
+        _count:{
+          select:{
+            sites:true
+          }
+        }
+      }
+    });
     return orgs;
   } catch (error) {
     throw error;
